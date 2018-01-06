@@ -1,0 +1,81 @@
+policy_module(royalbitcoin, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type royalbitcoin_t;
+type royalbitcoin_exec_t;
+init_daemon_domain(royalbitcoin_t, royalbitcoin_exec_t)
+
+permissive royalbitcoin_t;
+
+type royalbitcoin_initrc_exec_t;
+init_script_file(royalbitcoin_initrc_exec_t)
+
+type royalbitcoin_conf_t;
+files_type(royalbitcoin_conf_t)
+
+type royalbitcoin_var_lib_t;
+files_type(royalbitcoin_var_lib_t)
+
+type royalbitcoin_var_run_t;
+files_type(royalbitcoin_var_run_t)
+
+type royalbitcoin_port_t;
+corenet_port(royalbitcoin_port_t)
+
+########################################
+#
+# royalbitcoin local policy
+#
+allow royalbitcoin_t self:process { fork };
+
+allow royalbitcoin_t self:fifo_file rw_fifo_file_perms;
+allow royalbitcoin_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(royalbitcoin_t, royalbitcoin_conf_t, royalbitcoin_conf_t)
+manage_files_pattern(royalbitcoin_t, royalbitcoin_conf_t, royalbitcoin_conf_t)
+
+manage_dirs_pattern(royalbitcoin_t, royalbitcoin_var_lib_t, royalbitcoin_var_lib_t)
+manage_files_pattern(royalbitcoin_t, royalbitcoin_var_lib_t, royalbitcoin_var_lib_t)
+files_var_lib_filetrans(royalbitcoin_t, royalbitcoin_var_lib_t, { dir file })
+
+manage_dirs_pattern(royalbitcoin_t, royalbitcoin_var_run_t, royalbitcoin_var_run_t)
+manage_files_pattern(royalbitcoin_t, royalbitcoin_var_run_t, royalbitcoin_var_run_t)
+
+sysnet_dns_name_resolve(royalbitcoin_t)
+corenet_all_recvfrom_unlabeled(royalbitcoin_t)
+
+allow royalbitcoin_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(royalbitcoin_t)
+corenet_tcp_sendrecv_generic_node(royalbitcoin_t)
+corenet_tcp_sendrecv_all_ports(royalbitcoin_t)
+corenet_tcp_bind_generic_node(royalbitcoin_t)
+
+gen_require(`
+    type royalbitcoin_port_t;
+')
+allow royalbitcoin_t royalbitcoin_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type royalbitcoin_port_t;
+')
+allow royalbitcoin_t royalbitcoin_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(royalbitcoin_t)
+
+files_read_etc_files(royalbitcoin_t)
+
+miscfiles_read_localization(royalbitcoin_t)
+
+sysnet_dns_name_resolve(royalbitcoin_t)
+
+allow royalbitcoin_t royalbitcoin_exec_t:file execute_no_trans;
+allow royalbitcoin_t self:process setsched;
+corecmd_exec_ls(royalbitcoin_t)
+corenet_tcp_connect_http_port(royalbitcoin_t)
+dev_read_urand(royalbitcoin_t)
+fs_getattr_xattr_fs(royalbitcoin_t)
+kernel_read_system_state(royalbitcoin_t)

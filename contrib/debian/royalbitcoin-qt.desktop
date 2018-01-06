@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Royalbitcoin Core
+Comment=Connect to the Royalbitcoin P2P Network
+Comment[de]=Verbinde mit dem Royalbitcoin peer-to-peer Netzwerk
+Comment[fr]=Royalbitcoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Royalbitcoin, eşten eşe kriptografik sanal para birimi
+Exec=royalbitcoin-qt %u
+Terminal=false
+Type=Application
+Icon=royalbitcoin128
+MimeType=x-scheme-handler/royalbitcoin;
+Categories=Office;Finance;

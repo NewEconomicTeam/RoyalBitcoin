@@ -1,0 +1,6 @@
+usr/local/bin/royalbitcoin-qt usr/bin
+share/pixmaps/royalbitcoin32.xpm usr/share/pixmaps
+share/pixmaps/royalbitcoin16.xpm usr/share/pixmaps
+share/pixmaps/royalbitcoin128.png usr/share/pixmaps
+debian/royalbitcoin-qt.desktop usr/share/applications
+debian/royalbitcoin-qt.protocol usr/share/kde4/services/

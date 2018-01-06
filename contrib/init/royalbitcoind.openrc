@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/royalbitcoin/.royalbitcoin" ]; then
+	ROYALBITCOIND_DEFAULT_DATADIR="/var/lib/royalbitcoin/.royalbitcoin"
+else
+	ROYALBITCOIND_DEFAULT_DATADIR="/var/lib/royalbitcoind"
+fi
+
+ROYALBITCOIND_CONFIGFILE=${ROYALBITCOIND_CONFIGFILE:-/etc/royalbitcoin/royalbitcoin.conf}
+ROYALBITCOIND_PIDDIR=${ROYALBITCOIND_PIDDIR:-/var/run/royalbitcoind}
+ROYALBITCOIND_PIDFILE=${ROYALBITCOIND_PIDFILE:-${ROYALBITCOIND_PIDDIR}/royalbitcoind.pid}
+ROYALBITCOIND_DATADIR=${ROYALBITCOIND_DATADIR:-${ROYALBITCOIND_DEFAULT_DATADIR}}
+ROYALBITCOIND_USER=${ROYALBITCOIND_USER:-${ROYALBITCOIN_USER:-royalbitcoin}}
+ROYALBITCOIND_GROUP=${ROYALBITCOIND_GROUP:-royalbitcoin}
+ROYALBITCOIND_BIN=${ROYALBITCOIND_BIN:-/usr/bin/royalbitcoind}
+ROYALBITCOIND_NICE=${ROYALBITCOIND_NICE:-${NICELEVEL:-0}}
+ROYALBITCOIND_OPTS="${ROYALBITCOIND_OPTS:-${ROYALBITCOIN_OPTS}}"
+
+name="Royalbitcoin Core Daemon"
+description="Royalbitcoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/royalbitcoind"
+command_args="-pid=\"${ROYALBITCOIND_PIDFILE}\" \
+		-conf=\"${ROYALBITCOIND_CONFIGFILE}\" \
+		-datadir=\"${ROYALBITCOIND_DATADIR}\" \
+		-daemon \
+		${ROYALBITCOIND_OPTS}"
+
+required_files="${ROYALBITCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${ROYALBITCOIND_USER} \
+			-N ${ROYALBITCOIND_NICE} -w 2000"
+pidfile="${ROYALBITCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${ROYALBITCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${ROYALBITCOIND_USER}:${ROYALBITCOIND_GROUP}" \
+	"${ROYALBITCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${ROYALBITCOIND_USER}:${ROYALBITCOIND_GROUP}" \
+	"${ROYALBITCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${ROYALBITCOIND_USER}:${ROYALBITCOIND_GROUP} \
+	-m 0660 \
+	${ROYALBITCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${ROYALBITCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run royalbitcoind."
+		eerror "The setting must appear in ${ROYALBITCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Royalbitcoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

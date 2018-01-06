@@ -1,0 +1,33 @@
+# /etc/conf.d/royalbitcoind: config file for /etc/init.d/royalbitcoind
+
+# Config file location
+#ROYALBITCOIND_CONFIGFILE="/etc/royalbitcoin/royalbitcoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $ROYALBITCOIND_USER)
+#ROYALBITCOIND_PIDDIR="/var/run/royalbitcoind"
+
+# What filename to give the pidfile
+#ROYALBITCOIND_PIDFILE="${ROYALBITCOIND_PIDDIR}/royalbitcoind.pid"
+
+# Where to write royalbitcoind data (be mindful that the blockchain is large)
+#ROYALBITCOIND_DATADIR="/var/lib/royalbitcoind"
+
+# User and group to own royalbitcoind process
+#ROYALBITCOIND_USER="royalbitcoin"
+#ROYALBITCOIND_GROUP="royalbitcoin"
+
+# Path to royalbitcoind executable
+#ROYALBITCOIND_BIN="/usr/bin/royalbitcoind"
+
+# Nice value to run royalbitcoind under
+#ROYALBITCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#ROYALBITCOIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for royalbitcoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+ROYALBITCOIND_SIGTERM_TIMEOUT=60
